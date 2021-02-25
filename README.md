@@ -21,6 +21,7 @@ Install `diffeqtorch`:
 ```commandline
 $ pip install diffeqtorch
 $ export JULIA_SYSIMAGE_DIFFEQTORCH="$HOME/.julia_sysimage_diffeqtorch.so"
+$ # Add the export to your .bashrc
 $ python -c "from diffeqtorch.install import install_and_test; install_and_test()"
 ```
 
@@ -31,6 +32,7 @@ We recommend using a custom Julia system image containing dependencies. By setti
 
 ```python
 from diffeqtorch import DiffEq
+import torch
 
 f = """
 function f(du,u,p,t)
