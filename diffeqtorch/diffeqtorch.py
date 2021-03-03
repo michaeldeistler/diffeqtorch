@@ -57,6 +57,7 @@ class DiffEq(torch.nn.Module):
             "runtime": "julia",
         },
         debug: Union[bool, int] = 0,
+        solve_args: Dict = {}
     ):
         """Initialize solver module
 
@@ -79,6 +80,7 @@ class DiffEq(torch.nn.Module):
                 - 2: Additionally logging PyTorch shapes
                 - 3: Additionally logging PyTorch values
                 - 4: Additionally turning on PyJulia debug mode
+            solve_kwargs: Key value pairs passed to `solve`.
 
         [1]: https://docs.sciml.ai/stable/
         [2]: https://pyjulia.readthedocs.io/en/stable/api.html#julia.api.Julia
@@ -95,6 +97,7 @@ class DiffEq(torch.nn.Module):
             "using": using,
             "debug": debug,
         }
+        self.opts = {**self.opts, **solve_args}
 
         # Logging
         self.log = get_logger(__name__)
@@ -207,7 +210,7 @@ class DifferentialEquationsJuliaFunction(torch.autograd.Function):
                 f"""
             prob = {opts['problem_type_grad']}(f,u0,tspan,p)
 
-            solution = solve(prob,{opts['solver']}(),reltol={opts['reltol']},abstol={opts['abstol']},saveat={opts['saveat']})
+            solution = solve(prob,{opts['solver']}(),reltol={opts['reltol']},abstol={opts['abstol']},saveat={opts['saveat']}, dt={opts['dt']})
 
             u, du = extract_local_sensitivities(solution)
 
@@ -242,7 +245,7 @@ class DifferentialEquationsJuliaFunction(torch.autograd.Function):
                 f"""
             prob = {opts['problem_type_no_grad']}(f,u0,tspan,p)
 
-            solution = solve(prob,{opts['solver']}(),reltol={opts['reltol']},abstol={opts['abstol']},saveat={opts['saveat']})
+            solution = solve(prob,{opts['solver']}(),reltol={opts['reltol']},abstol={opts['abstol']},saveat={opts['saveat']}, dt={opts['dt']})
 
             solution.u, solution.t
             """  # noqa: E501
